@@ -1,0 +1,62 @@
+<!doctype html> <!-- Minimal Mistakes Jekyll Theme 4.16.4 by Michael Rose Copyright 2013-2019 Michael Rose - mademistakes.com | @mmistakes Free for personal and commercial use under the MIT license https://github.com/mmistakes/minimal-mistakes/blob/master/LICENSE --> <html lang=en > <meta charset=UTF-8 > <meta name=viewport  content="width=device-width, initial-scale=1"> <link rel=stylesheet  href="/libs/highlight/styles/github.min.css"> <link rel=stylesheet  href="/css/franklin.css"> <link rel=stylesheet  href="/css/minimal-mistakes.css"> <link rel=stylesheet  href="/css/adjust.css"> <link rel=icon  href="/assets/minimal-mistakes/Neurons1.jpeg"> <!--[if IE ]> <style> /* old IE unsupported flexbox fixes */ .greedy-nav .site-title { padding-right: 3em; } .greedy-nav button { position: absolute; top: 0; right: 0; height: 100%; } </style> <![endif]--> <title>Why fetch &amp; merge, not pull</title> <body class=layout--single > <div class=masthead > <div class=masthead__inner-wrap > <div class=masthead__menu > <nav id=site-nav  class=greedy-nav > <a class=site-title  href="/">O'Leary Lab</a> <ul class=visible-links > <li class=masthead__menu-item ><a href="/research/" >Research</a> <li class=masthead__menu-item ><a href="/publications/" >Publications</a> <li class=masthead__menu-item ><a href="/people/" >People</a> <li class=masthead__menu-item ><a href="/wiki/">Wiki</a> <li class=masthead__menu-item ><a href="/contact/">Contact</a> </ul> <button class="greedy-nav__toggle hidden" type=button > <span class=visually-hidden >Toggle menu</span> <div class=navicon ></div> </button> <ul class="hidden-links hidden"></ul> </nav> </div> </div> </div> <div class=initial-content > <div id=main  role=main > <div class="sidebar sticky"> <div class=Thing > <h4 class=author__bio  itemprop=description >Posts:</h4> <button type=button  class=collapsible >wiki/</button> <div class=collapsiblecontent > <button type=button  class=collapsible >wiki/Resources</button> <div class=collapsiblecontent > <button type=button  class=collapsible >wiki/Resources/LabMeetings</button> <div class=collapsiblecontent > <a href="/wiki/Resources/LabMeetings/page3/"> <span class=post-title >Papers presented</span> <br> </div> <button type=button  class=collapsible >wiki/Resources/git</button> <div class=collapsiblecontent > <a href="/wiki/Resources/git/Git fetch and merge/"> <span class=post-title >Why fetch &amp;amp; merge, not pull</span> <br> </div> <a href="/wiki/Resources/page1/"> <span class=post-title >Templates</span> <br> <a href="/wiki/Resources/page2/"> <span class=post-title >page2</span> <br> </div> <a href="/wiki/lab_wiki/"> <span class=post-title >Lab Wiki</span> <br> <a href="/wiki/testfile/"> <span class=post-title >extra file</span> <br> </div> <script> var coll = document.getElementsByClassName("collapsible"); var i; for (i = 0; i < coll.length; i++) { coll[i].addEventListener("click", function () { this.classList.toggle("active"); var content = this.nextElementSibling; if (content.style.display === "block") { content.style.display = "none"; } else { content.style.display = "block"; } }); } </script> </div> </div> <div class=franklin-content ><p><hr /> Title: Git fetch and merge Date: 2022-07-26 –-</p> <p>#git</p> <h1 id=why_fetch_merge_not_pull ><a href="#why_fetch_merge_not_pull" class=header-anchor >Why fetch &amp; merge, not pull</a></h1> <h2 id=introduction ><a href="#introduction" class=header-anchor >Introduction</a></h2> <p>When using git, you have two types of branches: <em>local</em> and <em>remote-tracking</em> branches. You can see your local branches by typing <code>git branch</code>, and your remote-tracking branches by typing <code>git branch -r</code>. E.g.:</p> <pre><code class=language-zsh >thomasburger@MBPvanThomas2 NeuronBuilder &#37; git branch
+  master
+  spikerasters
+* synapse_bugfix
+  test_branch</code></pre> <p>and</p> <pre><code class=language-zsh >thomasburger@MBPvanThomas2 NeuronBuilder &#37; git branch -r
+  origin/HEAD -&gt; origin/master
+  origin/Modules
+  origin/NetworkBuilder
+  origin/PlasticityRules
+  origin/ProperSynapses
+  origin/Units
+  origin/channel_libraries
+  origin/compathelper/new_version/2021-03-15-01-00-10-022-3170862194
+  origin/compathelper/new_version/2021-03-15-01-00-13-698-1560394130
+  origin/compathelper/new_version/2021-03-17-01-00-29-146-1232274421
+  origin/compathelper/new_version/2021-04-01-01-14-14-873-2255874221
+  origin/compathelper/new_version/2021-04-28-01-13-49-151-1696217232
+  origin/compathelper/new_version/2021-04-28-01-13-54-539-2275432496
+  origin/gitignore
+  origin/master
+  origin/observers
+  origin/resetneuron
+  origin/synapse_bugfix</code></pre> <p>The names of the remote-tracking branches are the name of the remote &#40;usually &#39;origin&#39; or whatever name you gave it&#41;, followed by &quot;/&quot; and the name of the branch on the remote. Both type of branches are stored locally on your machine in the form of compounding commits.</p> <p>An important difference is that remote-tracking branches are safely updated by <code>git fetch</code> or <code>git push</code>. One does not work on remote-tracking branches correctly, in contrast with local branches, where you move the tip of the branch through committing.</p> <p>Common operations involving remote-tracking branches are</p> <ul> <li><p>Updating them with <code>git fetch</code></p> <li><p>Merge them into currently checked-out branch</p> <li><p>Create new local branches based on them</p> </ul> <h2 id=creating_local_branch_from_remote-tracking_branch ><a href="#creating_local_branch_from_remote-tracking_branch" class=header-anchor >Creating local branch from remote-tracking branch</a></h2> <p>Creating a new local branch from a remote-tracking branch can be achieved by doing <code>git branch --track</code> or <code>git checkout -b</code></p> <p>For example, you can do <code>git branch --track fixed origin/fixed</code>. This creates a local branch <code>fixed</code> which corresponds to the remote-tracking branch <code>origin/fixed</code>. Alternatively, <code>git checkout --tracked -b fixed origin/fixed</code> immediately changes the working tree to be on the <code>fixed</code> branch. Because the input branch <code>origin/fixed</code> is a remote-tracking branch, git automatically sets up the newly created local branch <code>fixed</code> to track the remote-tracking branch <code>origin/fixed</code>.</p> <p>Note that, for both of these commands, git is able to infer the <code>--track</code> option when an input is a remote-tracking branch, and it can be omitted.</p> <h2 id=updating_from_remote_repository ><a href="#updating_from_remote_repository" class=header-anchor >Updating from remote repository</a></h2> <p>You can update your remote-tracking branches from the remote <code>origin</code> by doing <code>git fetch origin</code>. This might give output like</p> <pre><code class=language-zsh >remote: Counting objects: 382, done.
+remote: Compressing objects: 100&#37; &#40;203/203&#41;, done.
+remote: Total 278 &#40;delta 177&#41;, reused 103 &#40;delta 59&#41;
+Receiving objects: 100&#37; &#40;278/278&#41;, 4.89 MiB | 539 KiB/s, done.
+Resolving deltas: 100&#37; &#40;177/177&#41;, completed with 40 local objects.
+From ssh://longair@pacific.mpi-cbg.de/srv/git/fiji
+ 3036acc..9eb5e40  debian-release-20081030 -&gt; origin/debian-release-20081030
+* &#91;new branch&#93;      debian-release-20081112 -&gt; origin/debian-release-20081112
+* &#91;new branch&#93;      debian-release-20081112.1 -&gt; origin/debian-release-20081112.1
+ 3d619e7..6260626  master     -&gt; origin/master</code></pre> <p>The important bits are in lines like</p> <pre><code class=language-julia >3036acc..9eb5e40  debian-release-20081030 -&gt; origin/debian-release-20081030
+* &#91;new branch&#93;      debian-release-20081112 -&gt; origin/debian-release-20081112</code></pre> <p>Here, <code>3036acc..9eb5e40</code> says that the remote-tracking branch <code>origin/debian-release-20081030</code> was advanced from commit <code>3036acc</code> to commit <code>9eb5e40</code>. <code>debian-release-20081030</code> is the name of the branch on the remote. The line beginning with <code>* &#91;new branch&#93;</code> says that a new branch on the remote was created since the last time we <code>fetch</code>ed.</p> <p>The advantage of <code>git fetch</code> is that is leaves the working tree untouched. To actually incorporate the changes from the remote into the working tree, we have to do a <code>git merge</code>.</p> <p>So if we are working on a <code>master</code> branch, after doing <code>git checkout master</code>, we can do</p> <pre><code class=language-zsh >git merge origin/master</code></pre>
+<p>If, instead, you want to see what the differences are between your local branch and the remote-tracking branch you can do</p>
+<pre><code class=language-zsh >git diff master origin/master</code></pre>
+<p>By doing <code>git fetch</code> you have some breathing room to examine what would happen if you merge, and to decide what you want to do next.</p>
+<h2 id=updating_remote_branches ><a href="#updating_remote_branches" class=header-anchor >Updating remote branches</a></h2>
+<p>Say you have made changes in your local branch <code>experiment</code>, and you want to push these to the remote repository <code>origin</code>. This is achieved simply by doing</p>
+<pre><code class=language-zsh >git push origin experiment</code></pre>
+<p>You may get some error messages. For example, if you get the error that the remote repository cannot fast-forward the branch, if probably means someone else pushed changed into that branch. In that case, you&#39;ll need to fetch and merge to incorporate their changes before pushing again.</p>
+<p>As a side effect, this will also update your remote-tracking branches, corresponding to the branches in the remote you are pushing to.</p>
+<div class=page-foot >
+</div>
+</div>
+
+      </div> 
+    </div>   
+
+    <div class=page__footer >
+      <footer>
+      
+        <div class=page__footer-copyright >
+          &copy; O'Leary 2022.  Last modified: January 30, 2023. 
+          Powered by <a href="https://github.com/tlienart/Franklin.jl">Franklin</a>.
+          Website built with <a href="https://mademistakes.com/work/minimal-mistakes-jekyll-theme/" rel=nofollow >Minimal
+            Mistakes</a> template and the <a href="https://julialang.org">Julia programming language</a>.
+        </div>
+      </footer>
+    </div>
+
+    <script src="/libs/minimal-mistakes/main.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.8.2/js/all.js" integrity="sha384-DJ25uNYET2XCl5ZF++U8eNxPWqcKohUUBUpKGlNLMchM7q4Wjg2CUpjHLaL8yYPH" crossorigin=anonymous ></script>
